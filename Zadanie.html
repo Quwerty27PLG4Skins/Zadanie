@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gry: Kółko i Krzyżyk oraz Gra Matematyczna</title>
+        <link rel="stylesheet" href="zadanie.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>Wybierz grę:</h1>
+    <button onclick="showGame('ticTacToe')">Kółko i Krzyżyk</button>
+    <button onclick="showGame('mathGame')">Gra Matematyczna</button>
+
+    <div id="ticTacToe" class="game">
+        <h2>Kółko i Krzyżyk</h2>
+        <div id="board"></div>
+        <button onclick="resetGame()" style="background-color: #ff6b6b;">Resetuj Grę</button>
+    </div>
+
+    <div id="mathGame" class="game">
+        <h2>Gra Matematyczna</h2>
+        <p>Rozwiąż zadanie:</p>
+        <p id="mathQuestion"></p>
+        <input type="number" id="answerInput" placeholder="Twoja odpowiedź">
+        <button onclick="checkAnswer()" style="background-color: #1dd1a1;">Sprawdź odpowiedź</button>
+        <p id="result"></p>
+        <button onclick="generateQuestion()" style="background-color: #4c87ff;">Nowe pytanie</button>
+    </div>
+</div>
+
+<script>
+function showGame(gameId) {
+    document.querySelectorAll('.game').forEach(game => game.style.display = 'none');
+    document.getElementById(gameId).style.display = 'block';
+    if (gameId === 'ticTacToe') initializeTicTacToe();
+    if (gameId === 'mathGame') generateQuestion();
+}
+
+let board = Array(9).fill(null);
+let currentPlayer = 'X';
+
+function initializeTicTacToe() {
+    const boardDiv = document.getElementById("board");
+    boardDiv.innerHTML = '';
+    board = Array(9).fill(null);
+    currentPlayer = 'X';
+    for (let i = 0; i < 9; i++) {
+        const cell = document.createElement('div');
+        cell.addEventListener('click', () => makeMove(i));
+        boardDiv.appendChild(cell);
+    }
+}
+
+function makeMove(index) {
+    if (!board[index]) {
+        board[index] = currentPlayer;
+        document.getElementById("board").children[index].innerText = currentPlayer;
+        if (checkWinner()) {
+            setTimeout(() => alert(`Wygrał gracz ${currentPlayer}!`), 100);
+            resetGame();
+        } else if (board.every(cell => cell)) {
+            setTimeout(() => alert("Remis!"), 100);
+            resetGame();
+        }
+        currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+    }
+}
+
+function checkWinner() {
+    const winningCombinations = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8],
+        [0, 3, 6], [1, 4, 7], [2, 5, 8],
+        [0, 4, 8], [2, 4, 6]
+    ];
+    return winningCombinations.some(combination => 
+        combination.every(i => board[i] === currentPlayer)
+    );
+}
+
+function resetGame() {
+    initializeTicTacToe();
+}
+
+let num1, num2;
+
+function generateQuestion() {
+    num1 = Math.floor(Math.random() * 10);
+    num2 = Math.floor(Math.random() * 10);
+    document.getElementById("mathQuestion").innerText = `${num1} + ${num2} = ?`;
+    document.getElementById("result").innerText = '';
+}
+
+function checkAnswer() {
+    const userAnswer = parseInt(document.getElementById("answerInput").value);
+    const correctAnswer = num1 + num2;
+    document.getElementById("result").innerText = 
+        userAnswer === correctAnswer ? "Brawo! Dobra odpowiedź." : "Niestety, spróbuj ponownie.";
+    document.getElementById("answerInput").value = '';
+}
+
+</script>
+
+</body>
+</html>
